@@ -1,0 +1,41 @@
+{
+  "name": "hp",
+  "description": "Http Proxy Kit.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/yuanyan/hp",
+  "author": {
+    "name": "Yuanyan Cao",
+    "url": "https://github.com/yuanyan"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yuanyan/hp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yuanyan/hp/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/yuanyan/hp/blob/master/MIT-LICENSE.txt"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "bin": {
+    "hp": "./bin/hp"
+  },
+  "scripts": {},
+  "dependencies": {
+    "connect": "^2.23.0",
+    "faye-websocket": "^0.6.1",
+    "gaze": "^0.6.4",
+    "http-proxy": "^0.10.4",
+    "optimist": "^0.6.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "proxy"
+  ]
+}
