@@ -13,14 +13,13 @@ $ npm install hp -g
 
 ## Usage
 ```shelll
-$ hp -h
 Usage: hp [options]
 
 Options:
   --config, -c  proxy config file                               [default: "Proxyfile.js"]
   --target, -t  target directory                                [default: "."]
   --port, -p    server port                                     [default: 3000]
-  --log, -l     log requests                                    [default: false]
+  --log, -l     log requests                                    [default: "default"]
   --delay, -d   bandwidth delay
   --reload, -r  enable live reload changed files                [default: false]
   --watch, -w   files be watched and reloaded                   [default: "**/*.*"]
@@ -32,6 +31,7 @@ Options:
 ## Options
 
 ```js
+// Proxyfile.js
 module.exports = {
     // `default` ':remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
     // `short` ':remote-addr - :method :url HTTP/:http-version :status :res[content-length] - :response-time ms'
