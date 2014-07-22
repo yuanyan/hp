@@ -2,22 +2,42 @@
 > HTTP Proxy Kit.
 
 ## Features
-
+* Web debugging proxy
 * Live browser reloads, instantly see changes in your browser
 * Remote logging for mobile development
-* Web debugging proxy
+
+## Install
+```shell
+$ npm install hp -g
+```
 
 ## Usage
+```shelll
+$ hp -h
+Usage: hp [options]
 
-```js
-$ npm install hp -g
-$ hp
+Options:
+  --config, -c  proxy config file                               [default: "Proxyfile.js"]
+  --target, -t  target directory                                [default: "."]
+  --port, -p    server port                                     [default: 3000]
+  --log, -l     log requests                                    [default: false]
+  --delay, -d   bandwidth delay
+  --reload, -r  enable live reload changed files                [default: false]
+  --watch, -w   files be watched and reloaded                   [default: "**/*.*"]
+  --console     enable remote logging service                   [default: false]
+  --proxies     enable request proxy
+  --open, -o    open the default browser after server starting  [default: false]
 ```
 
 ## Options
 
-```
+```js
 module.exports = {
+    // `default` ':remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
+    // `short` ':remote-addr - :method :url HTTP/:http-version :status :res[content-length] - :response-time ms'
+    //` tiny`  ':method :url :status :res[content-length] - :response-time ms'
+    // `dev` concise output colored by response status for development use
+    log: 'default'
     proxies: [
         {
             location: "/cgi-bin/",

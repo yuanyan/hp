@@ -28,13 +28,13 @@
   },
   "scripts": {},
   "dependencies": {
-    "connect": "^2.23.0",
+    "connect": "^2.9.0",
     "faye-websocket": "^0.6.1",
     "gaze": "^0.6.4",
     "http-proxy": "^0.10.4",
+    "lodash": "^2.4.1",
     "optimist": "^0.6.1"
   },
-  "devDependencies": {},
   "keywords": [
     "proxy"
   ]

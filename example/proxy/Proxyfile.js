@@ -1,5 +1,6 @@
 
 module.exports = {
+    log: 'tiny',
     proxies: [
         {
             location: "/cgi-bin/",

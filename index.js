@@ -2,7 +2,6 @@ var path = require('path');
 var fs = require('fs');
 var urlParse = require('url').parse;
 var connect = require('connect');
-var app = connect();
 
 exports.log = console.log;
 
@@ -10,8 +9,8 @@ exports.log = console.log;
  * open application
  */
 exports.open = function(target, appName, callback) {
+    exports.log('Open:', target);
     var opener;
-
     if (typeof(appName) === 'function') {
         callback = appName;
         appName = null;
@@ -68,7 +67,7 @@ exports.run = function (options, done) {
     }
 
     if(options.console){
-        exports.log("remote logging service enable");
+        exports.log("Remote logging service enable");
 
         var consolePort = options.consolePort = Number(String(options.console)) || 9999;
         var consoleId = options.consoleId = String(Math.round(Math.random()*1000));
@@ -82,17 +81,16 @@ exports.run = function (options, done) {
         );
 
         consoleServer.listen(consolePort);
-        exports.log('success start remote logging server on port: ' + consolePort);
+        exports.log('Success start remote logging server on port: ' + consolePort);
 
         var url = 'http://127.0.0.1:'+ consolePort + '/?:listen ' + consoleId;
-        exports.log('open browser:', url);
         exports.open(url);
     }
 
     // auto reload server
     if(options.reload) {
         middleware.push( connect.static(path.join(__dirname, './asset/livereload')) );
-        exports.log("reload service enable");
+        exports.log("Reload service enable");
     }
 
     if(options.reload || options.console) {
@@ -111,7 +109,7 @@ exports.run = function (options, done) {
     // delay response config
     if(options.delay){
         middleware.push( delay(options, connect));
-        exports.log("delay service enable");
+        exports.log("Delay service enable");
     }
 
     // common middleware
@@ -124,7 +122,7 @@ exports.run = function (options, done) {
     ]);
 
     // run server
-    app.use(middleware)
+    connect.apply(null, middleware)
         .on('error', function( err ) {
             if ( err.code === 'EADDRINUSE' ) {
                 return this.listen(0); // 0 means random port
@@ -157,7 +155,7 @@ exports.run = function (options, done) {
                 var Watcher = require('gaze');
                 var watcher = new Watcher(options.watch || defaultPatterns);
                 watcher.on('ready', function (watcher) {
-                    exports.log("reload watch task start");
+                    exports.log("Reload watch task start");
                 });
                 // A file has been added/changed/deleted has occurred
                 watcher.on('all', function (event, filepath) {
@@ -165,10 +163,9 @@ exports.run = function (options, done) {
                 });
             }
 
-            exports.log('success start server on port: ' + port);
+            exports.log('Success start server on port: ' + port);
             if(options.open) {
                 var url = 'http://127.0.0.1:'+port;
-                exports.log('open browser:', url);
                 exports.open(url);
             }
             done(null);

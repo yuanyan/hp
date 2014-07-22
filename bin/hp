@@ -1,54 +1,51 @@
 #!/usr/bin/env node
-
 var usage = 'Usage: hp [options]';
 var options = {
     config: {
-        alias : 'c'
-        ,default : 'Proxyfile.js'
-        ,describe : 'proxy config file'
+        alias: 'c',
+        default: 'Proxyfile.js',
+        describe: 'proxy config file'
     },
-    target : {
-        alias : 't'
-        ,default : '.'
-        ,describe : 'target directory'
+    target: {
+        alias: 't', default: '.', describe: 'target directory'
     },
-    port : {
-        alias : 'p'
-        ,default : 3000
-        ,describe : 'server port'
+    port: {
+        alias: 'p',
+        default: 3000,
+        describe: 'server port'
     },
-    log:{
-        alias:'l'
-        ,default: false
-        ,describe: "log requests"
+    log: {
+        alias: 'l',
+        default: 'default',
+        describe: 'log requests'
     },
     delay: {
-        alias: 'd'
-        ,type : 'number'
-        ,describe: 'bandwidth delay'
+        alias: 'd',
+        type: 'number',
+        describe: 'bandwidth delay'
     },
     reload: {
-        alias : 'r'
-        ,default: false
-        ,describe : 'enable live reload changed files'
+        alias: 'r',
+        default: false,
+        describe: 'enable live reload changed files'
     },
     watch: {
-        alias : 'w'
-        ,default: './**/*.*'
-        ,describe : 'files be watched and reloaded'
+        alias: 'w',
+        default: '**/*.*',
+        describe: 'files be watched and reloaded'
     },
     console: {
-        default: false
-        ,describe : 'enable remote logging service'
+        default: false,
+        describe: 'enable remote logging service'
     },
     proxies: {
         type: "array",
-        describe : 'enable request proxy'
+        describe: 'enable request proxy'
     },
-    open:{
-        alias: 'o'
-        ,default: true
-        ,describe: 'open the default browser after server starting'
+    open: {
+        alias: 'o',
+        default: false,
+        describe: 'open the default browser after server starting'
     }
 };
 
@@ -57,35 +54,29 @@ var taskArgs = require('optimist')
     .options(options);
 
 var argv = taskArgs.argv;
-if(argv.h || argv.help){
+if (argv.h || argv.help) {
     var help = taskArgs.help();
     console.log(help);
-}else if(argv.v || argv.version){
+} else if (argv.v || argv.version) {
     var pkg = require('../package.json');
     console.log(pkg.version);
-}else{
+} else {
     var config = argv.config;
-    try{
-        var options = require(config);
-        mixin(argv, options);
-        console.log('load config file:', config)
-    }catch(e){}
-
-    require('../').run(argv, function(err){
-        // Done
-    });
-}
-
-function mixin(receiver, supplier) {
-    if (Object.keys) {
-        Object.keys(supplier).forEach(function(property) {
-            Object.defineProperty(receiver, property, Object.getOwnPropertyDescriptor(supplier, property));
-        });
-    } else {
-        for (var property in supplier) {
-            if (supplier.hasOwnProperty(property)) {
-                receiver[property] = supplier[property];
-            }
+    var path = require('path');
+    var fs = require('fs');
+    var _ = require('lodash');
+    var hp = require('../');
+    try {
+        config = path.join(process.cwd(), config);
+        _.extend(argv, require(config));
+        console.log('Load config file:', config);
+    } catch (e) {
+        if (fs.existsSync(config) || (argv.config !== options.config.default)) {
+            throw e;
         }
     }
+
+    hp.run(argv, function (err) {
+        // Done
+    });
 }
