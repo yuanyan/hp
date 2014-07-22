@@ -1,7 +1,7 @@
 {
   "name": "hp",
   "description": "Http Proxy Kit.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://github.com/yuanyan/hp",
   "author": {
     "name": "Yuanyan Cao",

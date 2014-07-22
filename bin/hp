@@ -7,7 +7,9 @@ var options = {
         describe: 'proxy config file'
     },
     target: {
-        alias: 't', default: '.', describe: 'target directory'
+        alias: 't',
+        default: '.',
+        describe: 'target directory'
     },
     port: {
         alias: 'p',
@@ -15,24 +17,18 @@ var options = {
         describe: 'server port'
     },
     log: {
-        alias: 'l',
         default: 'default',
-        describe: 'log requests'
+        describe: 'log requests mode'
     },
-    delay: {
-        alias: 'd',
-        type: 'number',
-        describe: 'bandwidth delay'
-    },
-    reload: {
-        alias: 'r',
+    live: {
+        alias: 'l',
         default: false,
         describe: 'enable live reload changed files'
     },
     watch: {
         alias: 'w',
         default: '**/*.*',
-        describe: 'files be watched and reloaded'
+        describe: 'files be watched when live reload enabled'
     },
     console: {
         default: false,

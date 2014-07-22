@@ -87,13 +87,13 @@ exports.run = function (options, done) {
         exports.open(url);
     }
 
-    // auto reload server
-    if(options.reload) {
+    // live reload server
+    if(options.live) {
         middleware.push( connect.static(path.join(__dirname, './asset/livereload')) );
-        exports.log("Reload service enable");
+        exports.log("Live reload service enable");
     }
 
-    if(options.reload || options.console) {
+    if(options.live || options.console) {
         middleware.push( injectScript(options, connect) );
     }
 
@@ -104,12 +104,6 @@ exports.run = function (options, done) {
         //` tiny`  ':method :url :status :res[content-length] - :response-time ms'
         // `dev` concise output colored by response status for development use
         middleware.push( connect.logger(options.log) );
-    }
-
-    // delay response config
-    if(options.delay){
-        middleware.push( delay(options, connect));
-        exports.log("Delay service enable");
     }
 
     // common middleware
@@ -139,8 +133,8 @@ exports.run = function (options, done) {
 
             var port = this.address().port;
 
-            // if enable reload service
-            if(options.reload){
+            // if enable live reload service
+            if(options.live){
                 var Reactor = require('./lib/reactor');
                 // create the reactor object
                 // reload server
@@ -151,15 +145,16 @@ exports.run = function (options, done) {
                     port: port
                 } );
 
-                var defaultPatterns = "./**/*.*";
                 var Watcher = require('gaze');
-                var watcher = new Watcher(options.watch || defaultPatterns);
+                var watcher = new Watcher(options.watch);
                 watcher.on('ready', function (watcher) {
-                    exports.log("Reload watch task start");
+                    exports.log("Watch on file patterns:", options.watch);
                 });
                 // A file has been added/changed/deleted has occurred
                 watcher.on('all', function (event, filepath) {
-                    reactor.reload(filepath);
+                    var changedFiles = [];
+                    changedFiles[filepath] = event;
+                    reactor.reload(changedFiles);
                 });
             }
 
@@ -172,42 +167,6 @@ exports.run = function (options, done) {
         });
 
 };
-
-// connect delay middleware
-// Fiddler2 provides an option under Rules -> Performance Menu -> Simulate Modem speeds.
-// By default the Internet Connection Speed available on selecting this option will be equivalent to 6.6 Kb/s.
-function delay(options, connect){
-
-    //From http://publik.tuwien.ac.at/files/pub-et_12521.pdf
-    //
-    //    Table 1. Measured ping times (32 bytes)
-    //Technology Bandwidth (down/up) Mean   Std
-    //  GPRS      80/40 kbit/s     488 ms   146 ms
-    //  EDGE     240/120 kbit/s     504 ms   89 ms
-    //  UMTS     384/128 kbit/s     142 ms   58 ms
-    //  HSDPA   1800/384 kbit/s     91 ms    43 ms
-    //  ADSL     1000/256 kbit/s    10.9 ms   0.8 ms
-    return function delay(req, res, next) {
-
-        if ('GET' != req.method && 'HEAD' != req.method){
-            return next();
-        }
-
-        var timeout = 0;
-        if (typeof options.delay === 'function'){
-            timeout = options.delay();
-        }else{
-            timeout = Number(options.delay);
-        }
-
-        var pause = connect.utils.pause(req);
-        setTimeout(function() {
-            next();
-            pause.resume();
-        }, timeout);
-
-    };
-}
 
 // connect inject middleware for liveload and jsconsole
 function injectScript(options, connect) {
@@ -244,7 +203,7 @@ function injectScript(options, connect) {
                     "</script>"
                 ].join('\n') + body;
 
-            if(options.reload){
+            if(options.live){
                 var port = res.socket.server.address().port;
                 body += ["<!-- livereload snippet -->",
                     "<script>document.write('<script src=\"http://'",
