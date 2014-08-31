@@ -3,7 +3,9 @@ var fs = require('fs');
 var urlParse = require('url').parse;
 var connect = require('connect');
 
-exports.log = console.log;
+exports.log = function(){
+    console.log.apply(console, arguments);
+};
 
 /**
  * open application
@@ -116,7 +118,7 @@ exports.run = function (options, done) {
     ]);
 
     // run server
-    connect.apply(null, middleware)
+    return connect.apply(null, middleware)
         .on('error', function( err ) {
             if ( err.code === 'EADDRINUSE' ) {
                 return this.listen(0); // 0 means random port
