@@ -4,7 +4,7 @@ var urlParse = require('url').parse;
 var connect = require('connect');
 
 exports.log = function(){
-    console.log.apply(console, arguments);
+    console.log.apply(console, arguments)
 };
 
 /**
@@ -57,19 +57,20 @@ exports.run = function (options, done) {
 
     var target = path.resolve(options.target);
     var port = options.port;
-
+    var log = (options.logger || exports).log;
+    exports.log = log;
 
     var middleware = [];
 
     if(options.proxies){
         var proxy  = require('./lib/proxy');
-        proxy.logger = console;
+        proxy.logger = options.logger || console;
         proxy.config(options.proxies);
         middleware.push(proxy.proxyRequest);
     }
 
     if(options.console){
-        exports.log("Remote logging service enable");
+        log("Remote logging service enable");
 
         var consolePort = options.consolePort = Number(String(options.console)) || 9999;
         var consoleId = options.consoleId = String(Math.round(Math.random()*1000));
@@ -83,7 +84,7 @@ exports.run = function (options, done) {
         );
 
         consoleServer.listen(consolePort);
-        exports.log('Success start remote logging server on port: ' + consolePort);
+        log('Success start remote logging server on port: ' + consolePort);
 
         var url = 'http://127.0.0.1:'+ consolePort + '/?:listen ' + consoleId;
         exports.open(url);
@@ -92,7 +93,7 @@ exports.run = function (options, done) {
     // live reload server
     if(options.live) {
         middleware.push( connect.static(path.join(__dirname, './asset/livereload')) );
-        exports.log("Live reload service enable");
+        log("Live reload service enable");
     }
 
     if(options.live || options.console) {
@@ -105,7 +106,11 @@ exports.run = function (options, done) {
         // `short` ':remote-addr - :method :url HTTP/:http-version :status :res[content-length] - :response-time ms'
         //` tiny`  ':method :url :status :res[content-length] - :response-time ms'
         // `dev` concise output colored by response status for development use
-        middleware.push( connect.logger(options.log) );
+        middleware.push( connect.logger({ stream: {
+            write: function(str){
+                log(str.trim());
+            }
+        }, format: options.log }) );
     }
 
     // common middleware
@@ -150,7 +155,7 @@ exports.run = function (options, done) {
                 var Watcher = require('gaze');
                 var watcher = new Watcher(options.watch);
                 watcher.on('ready', function (watcher) {
-                    exports.log("Watch on file patterns:", options.watch);
+                    log("Watch on file patterns:", options.watch);
                 });
                 // A file has been added/changed/deleted has occurred
                 watcher.on('all', function (event, filepath) {
@@ -159,8 +164,7 @@ exports.run = function (options, done) {
                     reactor.reload(changedFiles);
                 });
             }
-
-            exports.log('Success start server on port: ' + port);
+            log('Success start server on port: ' + port);
             if(options.open) {
                 var url = 'http://127.0.0.1:'+port;
                 exports.open(url);
