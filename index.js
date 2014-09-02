@@ -57,10 +57,13 @@ exports.run = function (options, done) {
 
     var target = path.resolve(options.target);
     var port = options.port;
+
     var log = (options.logger || exports).log;
+    var open = (options.opener || exports).open;
     exports.log = log;
 
     var middleware = [];
+    var consoleServer = null;
 
     if(options.proxies){
         var proxy  = require('./lib/proxy');
@@ -77,17 +80,27 @@ exports.run = function (options, done) {
 
         // start a standalone logging server
         connect.router =  require('./lib/router');
-        var consoleServer = connect.createServer(
+
+        consoleServer = connect.createServer(
             connect.bodyParser(),
             connect.static(path.join(__dirname, './asset/jsconsole')),
             connect.router( require('./lib/remotelogging') )
-        );
+        ).listen(consolePort);
 
-        consoleServer.listen(consolePort);
+        consoleServer.sockets = [];
+
+        // record all connections
+        consoleServer.on('connection', function (socket) {
+            consoleServer.sockets.push(socket);
+            socket.on('close', function () {
+                consoleServer.sockets.splice(consoleServer.sockets.indexOf(socket), 1);
+            });
+        });
+
         log('Success start remote logging server on port: ' + consolePort);
 
         var url = 'http://127.0.0.1:'+ consolePort + '/?:listen ' + consoleId;
-        exports.open(url);
+        open(url);
     }
 
     // live reload server
@@ -124,14 +137,6 @@ exports.run = function (options, done) {
 
     // run server
     return connect.apply(null, middleware)
-        .on('error', function( err ) {
-            if ( err.code === 'EADDRINUSE' ) {
-                return this.listen(0); // 0 means random port
-            }
-
-            // not an EADDRINUSE error, buble up the error
-            done(err);
-        })
         .listen(port, function(err) {
 
             if(err){
@@ -170,6 +175,25 @@ exports.run = function (options, done) {
                 exports.open(url);
             }
             done(null);
+        })
+        .on('error', function( err ) {
+            if ( err.code === 'EADDRINUSE' ) {
+                return this.listen(0); // 0 means random port
+            }
+
+            // not an EADDRINUSE error, buble up the error
+            done(err);
+        })
+        .on('close', function(){
+            if(consoleServer){
+                for (var i = 0; i < consoleServer.sockets.length; i++) {
+                    consoleServer.sockets[i].destroy();
+                }
+
+                consoleServer.close(function(){
+                    log('Console server closed')
+                })
+            }
         });
 
 };
