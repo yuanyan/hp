@@ -1,7 +1,7 @@
 {
   "name": "hp",
   "description": "Http Proxy Kit.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "https://github.com/yuanyan/hp",
   "author": {
     "name": "Yuanyan Cao",
@@ -29,9 +29,9 @@
   "scripts": {},
   "dependencies": {
     "connect": "2.9.0",
-    "faye-websocket": "^0.6.1",
-    "gaze": "^0.6.4",
-    "http-proxy": "^0.10.4",
+    "faye-websocket": "0.6.1",
+    "gaze": "0.5.1",
+    "http-proxy": "0.10.4",
     "lodash": "^2.4.1",
     "optimist": "^0.6.1"
   },
